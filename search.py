@@ -86,39 +86,33 @@ def depthFirstSearch(problem: SearchProblem):
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    # Initialize the frontier with the start state and empty path
+    #Initializing the frontier with the start state and empty path
     frontier = util.Stack()
     start_state = problem.getStartState()
-    frontier.push((start_state, []))  # (state, path_to_state)
+    frontier.push((start_state, []))
     
-    # Keep track of visited states to avoid cycles
+    #Keeping track of visited states to avoid cycles:
     visited = set()
     
     while not frontier.isEmpty():
-        # Get the current state and path
+
         current_state, path = frontier.pop()
-        
-        # Check if we've reached the goal
+
         if problem.isGoalState(current_state):
             return path
         
-        # Skip if we've already visited this state
         if current_state in visited:
             continue
             
-        # Mark current state as visited
         visited.add(current_state)
-        
-        # Get all successors of the current state
+
         successors = problem.getSuccessors(current_state)
-        
-        # Add each successor to the frontier
+
         for next_state, action, cost in successors:
             if next_state not in visited:
                 new_path = path + [action]
                 frontier.push((next_state, new_path))
     
-    # If no solution found, return empty list
     return []
 
 def breadthFirstSearch(problem: SearchProblem):
@@ -126,14 +120,13 @@ def breadthFirstSearch(problem: SearchProblem):
     frontier = util.Queue()
     start_state = problem.getStartState()
 
-    # Trivial case: start is goal
+    #Base case (start state is goal)
     if problem.isGoalState(start_state):
         return []
 
-    # Each queue entry: (state, path_to_state)
     frontier.push((start_state, []))
 
-    # Track visited states to avoid re-expansion
+    #Tracking visited states to avoid re-expansion:
     visited = set()
     visited.add(start_state)
 
@@ -148,7 +141,6 @@ def breadthFirstSearch(problem: SearchProblem):
                 visited.add(next_state)
                 frontier.push((next_state, path + [action]))
 
-    # No path found
     return []
 
 def uniformCostSearch(problem: SearchProblem):
@@ -156,16 +148,15 @@ def uniformCostSearch(problem: SearchProblem):
     frontier = util.PriorityQueue()
     start_state = problem.getStartState()
 
-    # Each PQ entry: (state, path_to_state, path_cost)
+    #Priotity queue entry: (state, path_to_state, path_cost):
     frontier.push((start_state, [], 0), 0)
 
-    # Record the best known cost to reach each state
+    #Recording the best known cost to reach each state:
     best_cost = {start_state: 0}
 
     while not frontier.isEmpty():
         state, path, cost_so_far = frontier.pop()
-
-        # If this popped entry is outdated (we've found a cheaper way), skip it
+        
         if cost_so_far > best_cost.get(state, float('inf')):
             continue
 
@@ -192,17 +183,17 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     frontier = util.PriorityQueue()
     start_state = problem.getStartState()
 
-    # f(start) = g(start)=0 + h(start)
+    #f(start) = g(start)=0 + h(start)
     start_h = heuristic(start_state, problem)
     frontier.push((start_state, [], 0), start_h)
 
-    # Record best known g-costs
+    #Recording best known g-costs:
     best_cost = {start_state: 0}
 
     while not frontier.isEmpty():
         state, path, g_cost = frontier.pop()
 
-        # Skip outdated entries
+        #Skipping outdated entries
         if g_cost > best_cost.get(state, float('inf')):
             continue
 

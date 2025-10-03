@@ -288,7 +288,7 @@ class CornersProblem(search.SearchProblem):
         for corner in self.corners:
             if not startingGameState.hasFood(*corner):
                 print('Warning: no food in corner ' + str(corner))
-        self._expanded = 0 # DO NOT CHANGE; Number of search nodes expanded
+        self._expanded = 0
 
     def getStartState(self):
         """
@@ -296,7 +296,6 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         start_pos = self.startingPosition
-        # visitedCorners is a tuple[bool] aligned with self.corners order
         visited = tuple(start_pos == corner for corner in self.corners)
         return (start_pos, visited)
 
@@ -327,14 +326,13 @@ class CornersProblem(search.SearchProblem):
             nextx, nexty = int(x + dx), int(y + dy)
             if not self.walls[nextx][nexty]:
                 next_pos = (nextx, nexty)
-                # Update visited corners if we arrive at one
                 new_visited = list(visited)
                 for idx, corner in enumerate(self.corners):
                     if next_pos == corner:
                         new_visited[idx] = True
                 successors.append(((next_pos, tuple(new_visited)), action, 1))
 
-        self._expanded += 1 # DO NOT CHANGE
+        self._expanded += 1
         return successors
 
     def getCostOfActions(self, actions):
@@ -364,25 +362,19 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
     """
-    corners = problem.corners # These are the corner coordinates
-    walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
+    corners = problem.corners
+    walls = problem.walls
 
     position, visited = state
 
-    # Gather remaining (unvisited) corners
     remaining = [corner for idx, corner in enumerate(problem.corners) if not visited[idx]]
     if not remaining:
         return 0
 
-    # Greedy lower bound: from current position, repeatedly go to the closest
-    # remaining corner by Manhattan distance, summing those distances.
-    # This underestimates the true remaining cost (ignores walls and path
-    # interactions), so it's admissible and consistent.
     heuristic_cost = 0
     current = position
     unvisited = remaining[:]
     while unvisited:
-        # pick nearest corner by Manhattan distance
         distances = [(util.manhattanDistance(current, c), c) for c in unvisited]
         d, chosen = min(distances, key=lambda x: x[0])
         heuristic_cost += d
@@ -410,8 +402,8 @@ class FoodSearchProblem:
         self.start = (startingGameState.getPacmanPosition(), startingGameState.getFood())
         self.walls = startingGameState.getWalls()
         self.startingGameState = startingGameState
-        self._expanded = 0 # DO NOT CHANGE
-        self.heuristicInfo = {} # A dictionary for the heuristic to store information
+        self._expanded = 0
+        self.heuristicInfo = {}
 
     def getStartState(self):
         return self.start
@@ -422,7 +414,7 @@ class FoodSearchProblem:
     def getSuccessors(self, state):
         "Returns successor states, the actions they require, and a cost of 1."
         successors = []
-        self._expanded += 1 # DO NOT CHANGE
+        self._expanded += 1
         for direction in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             x,y = state[0]
             dx, dy = Actions.directionToVector(direction)
@@ -439,7 +431,6 @@ class FoodSearchProblem:
         x,y= self.getStartState()[0]
         cost = 0
         for action in actions:
-            # figure out the next state and see whether it's legal
             dx, dy = Actions.directionToVector(action)
             x, y = int(x + dx), int(y + dy)
             if self.walls[x][y]:
@@ -486,7 +477,6 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     if not food_list:
         return 0
 
-    # Lower bound as: distance to closest food + MST over foods (Manhattan)
     def mst_total_length(points):
         if len(points) <= 1:
             return 0
@@ -535,13 +525,11 @@ class ClosestDotSearchAgent(SearchAgent):
         Returns a path (a list of actions) to the closest dot, starting from
         gameState.
         """
-        # Here are some useful elements of the startState
         startPosition = gameState.getPacmanPosition()
         food = gameState.getFood()
         walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState)
 
-        # Solve AnyFoodSearchProblem with BFS to get the shortest path to any food
         return search.bfs(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
@@ -561,10 +549,8 @@ class AnyFoodSearchProblem(PositionSearchProblem):
 
     def __init__(self, gameState):
         "Stores information from the gameState.  You don't need to change this."
-        # Store the food for later reference
         self.food = gameState.getFood()
 
-        # Store info for the PositionSearchProblem (no need to change this)
         self.walls = gameState.getWalls()
         self.startState = gameState.getPacmanPosition()
         self.costFn = lambda x: 1
